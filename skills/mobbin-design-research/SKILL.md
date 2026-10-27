@@ -8,13 +8,17 @@ license: MIT
 
 Mobbin is a library of real app screens and flows. This skill turns research into decisions: **study what already works, then build something better in your design tool**, inside your project's own rules.
 
-Requires the official Mobbin MCP server (`search_screens`, `search_flows`, `search_sections`; optional `list_collections`, `get_collection_contents`, `save_content`) and a Mobbin account.
+Requires the official Mobbin MCP server (hosted at `https://api.mobbin.com/mcp`, OAuth sign-in, read-only tools `search_screens`, `search_flows`, `search_sections`) and a paid Mobbin plan (Pro, Team or Enterprise); docs: https://mobbin.com/mcp and https://github.com/mobbin/mobbin-mcp-server. Without it, use the fallback below.
 
 ## Step 0: load the project config
 
-Read `project-config.md` at the project root or in `.claude/` (template: [references/project-config.template.md](references/project-config.template.md)). It names the rules file, platform, design tool, design-system locations, curated reference folders, priority apps, naming quirks and rate limits. If it is missing, offer to create it from the template; otherwise use these defaults: rules file `AGENTS.md` or `CLAUDE.md`, platform `ios`, design tool Figma, no curated folders.
+Read `project-config.md` at the project root or in your agent's config folder (e.g. `.claude/`, `.cursor/`, `.gemini/`) (template: [references/project-config.template.md](references/project-config.template.md)). It names the rules file, platform, design tool, design-system locations, curated reference folders, priority apps, naming quirks and rate limits. If it is missing, offer to create it from the template; otherwise use these defaults: rules file `AGENTS.md` (or your agent's equivalent, e.g. `CLAUDE.md`, `GEMINI.md`), platform `ios`, design tool Figma, no curated folders.
 
 Read the project rules file before designing. Research never authorizes breaking those rules: copy **patterns, not pixels**, colors or fonts from other apps.
+
+## Without the Mobbin MCP
+
+If the Mobbin tools are not available in this tool or chat, say so at the start. Ask the user for Mobbin links, screenshots or their exported collection, and run the same method on those (questions, numbers, patterns, compare loop). Never pretend to have searched Mobbin, and never invent `mobbin_url`s or screens you have not seen.
 
 ## Who decides (priority order)
 
@@ -33,7 +37,7 @@ One "After" version per screen: no B/C options. Would-be options go in the note,
 3. **Look at the images.** Never describe a screen from metadata alone. Cite each screen used with its `mobbin_url`.
 4. **Image links expire.** Download what you use (from `image_url`, never the preview) into `references/mobbin/<area>/img/` and record the `mobbin_url`, which is durable.
 5. **App-name collisions.** If a name returns the wrong app, search distinctive spellings or add a qualifier (see `naming_quirks` in the config).
-6. **Respect your design tool's rate limits.** Mobbin searches don't spend them, so search freely before opening the tool. In the tool, batch work into large scripts and capture at the end of each block; the limits live in the config.
+6. **Respect rate limits.** Mobbin MCP allows 60 requests per 60 seconds per user (HTTP 429 with `Retry-After`: wait, then retry). Mobbin searches don't spend your design tool's limits, so search before opening the tool. In the tool, batch work into large scripts and capture at the end of each block; the limits live in the config.
 7. **Reuse existing components.** Never hand-draw what the design system already has.
 8. **Extract numbers, not vibes.** Sizes, positions, item counts, labels, active states.
 
@@ -44,7 +48,7 @@ One "After" version per screen: no B/C options. Would-be options go in the note,
 | `search_screens` | Up to 30 screens with image, app and `mobbin_url`. `mode="deep"` interprets intent and filters relevance; `mode="standard"` is fast. Name the app to filter ("<app> profile screen") | References for one screen or component |
 | `search_flows` | Up to 10 flows per page, screens in order; paginate with `page` | How apps chain a journey (onboarding, paywall, add a friend) |
 | `search_sections` | Website sections | Web or landing pages only |
-| `list_collections`, `get_collection_contents`, `save_content` (optional) | The user's saved collections | Reading curation; saving the references you selected |
+| Collection tools (only if your client exposes them) | The user's saved collections | Reading curation |
 
 Fixed parameters (`platform`, `image_format`, output destination and tool) come from the config. Use the **same English `task_intent`** in every search of one task. One search = one screen or one journey. No negations, no vague words ("modern", "clean"), never two things at once.
 

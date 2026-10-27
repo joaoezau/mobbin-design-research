@@ -1,9 +1,10 @@
 # mobbin-design-research
 
-Transforme pesquisa no Mobbin em telas melhores: uma skill do Claude Code que estuda como apps reais resolvem um problema e depois refaz o seu design com base nessa evidência.
+Transforme pesquisa no Mobbin em telas melhores: uma skill para qualquer agente de IA (Claude Code, Codex, Cursor, Gemini CLI, Copilot, apps de chat) que estuda como apps reais resolvem um problema e depois refaz o seu design com base nessa evidência.
 
 [![Licença: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Skill do Claude Code](https://img.shields.io/badge/Claude%20Code-skill-8A5CF6)
+![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-0A7F5A)
 
 [English](README.md) | Português (Brasil)
 
@@ -19,30 +20,66 @@ A maioria das buscas por referência termina num moodboard que ninguém usa. Est
 
 ## Requisitos
 
-- [Claude Code](https://claude.com/claude-code)
-- Uma conta no Mobbin e o servidor MCP oficial do Mobbin, que fornece `search_screens`, `search_flows` e `search_sections` (e, opcionalmente, `list_collections`, `get_collection_contents`, `save_content`).
+- Um agente de IA com suporte a [Agent Skills](https://agentskills.io) (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot...) ou qualquer app de chat (ChatGPT, Gemini, Projetos do Claude.ai) pelo prompt para colar.
+- Recomendado: o servidor MCP oficial do Mobbin e um plano pago do Mobbin (Pro, Team ou Enterprise). Ele é hospedado em `https://api.mobbin.com/mcp` e expõe três ferramentas somente leitura: `search_screens`, `search_flows` e `search_sections`. Sem o Mobbin Pro? Veja o [modo manual](#sem-mobbin-pro-use-o-modo-manual).
 - Uma ferramenta de design da qual o agente consiga capturar telas. O Figma é o padrão; o loop funciona com qualquer ferramenta que permita "capturar e comparar".
 
 ## Instalação
 
+### a) Rápida (qualquer agente)
+
 ```bash
-git clone https://github.com/joaoezau/mobbin-design-research.git
-cd mobbin-design-research
-
-# Nível do usuário (todos os projetos)
-mkdir -p ~/.claude/skills
-cp -r skills/mobbin-design-research ~/.claude/skills/
-
-# ou nível do projeto (só este projeto)
-mkdir -p .claude/skills
-cp -r skills/mobbin-design-research .claude/skills/
+npx skills add joaoezau/mobbin-design-research
 ```
 
-Reinicie o Claude Code (ou abra uma nova sessão) para ele carregar a skill.
+A CLI [`skills`](https://github.com/vercel-labs/skills) detecta os agentes instalados. Escolha alguns com `-a`, por exemplo `-a claude-code -a codex -a cursor`.
 
-### Conectar o MCP do Mobbin
+### b) Manual
 
-Adicione o servidor MCP do Mobbin ao Claude Code seguindo a documentação do próprio Mobbin e entre com a sua conta. Confira com `/mcp` se as ferramentas do Mobbin aparecem na lista.
+A skill é uma pasta com `SKILL.md` na raiz (`skills/mobbin-design-research/`). Copie-a para a pasta de skills do seu agente:
+
+| Agente | Caminho do projeto | Caminho do usuário |
+|---|---|---|
+| Neutro (lido por vários agentes) | `.agents/skills/` | |
+| Claude Code | `.claude/skills/` | `~/.claude/skills/` |
+| Codex | `.agents/skills/` (algumas versões: `.codex/skills/`) | `~/.codex/skills/` (confira a documentação da sua versão do Codex) |
+| Cursor | `.cursor/skills/` (também lê `.agents/skills/`) | |
+| Gemini CLI | `.gemini/skills/` (também `.agents/skills/`) | `~/.gemini/skills/` |
+| GitHub Copilot | `.github/skills/` | `~/.copilot/skills/` |
+
+```bash
+git clone https://github.com/joaoezau/mobbin-design-research.git
+mkdir -p .claude/skills            # escolha a pasta da tabela
+cp -r mobbin-design-research/skills/mobbin-design-research .claude/skills/
+```
+
+Reinicie o agente (ou abra uma nova sessão) para ele carregar a skill.
+
+### c) Apps de chat (ChatGPT, Gemini, Projetos do Claude.ai)
+
+Cole [`adapters/mobbin-design-research.prompt.md`](adapters/mobbin-design-research.prompt.md) nas instruções de um GPT personalizado ou Projeto do ChatGPT, num Gem do Gemini, num Projeto do Claude ou em qualquer prompt de sistema. É a skill inteira em um arquivo. Apps de chat sem MCP usam o modo manual abaixo; se o seu plano do ChatGPT aceitar conectores MCP, dá para conectar o Mobbin ali.
+
+### d) Regra do Cursor (versões antigas, sem skills)
+
+Copie [`adapters/cursor/mobbin-design-research.mdc`](adapters/cursor/mobbin-design-research.mdc) para `.cursor/rules/`. Ela traz o conteúdo completo da skill.
+
+### e) Trecho para o AGENTS.md
+
+Cole [`adapters/AGENTS.snippet.md`](adapters/AGENTS.snippet.md) no seu `AGENTS.md`, `GEMINI.md` ou `.github/copilot-instructions.md` para o agente saber quando carregar a skill e onde ela fica.
+
+## Conectar o MCP do Mobbin
+
+Cada ferramenta tem a sua própria configuração de MCP; siga a documentação dela e a do Mobbin ([mobbin.com/mcp](https://mobbin.com/mcp), [mobbin/mobbin-mcp-server](https://github.com/mobbin/mobbin-mcp-server)). O servidor é hospedado (Streamable HTTP) e usa OAuth: login pelo navegador no primeiro uso, sem chave de API. Uma configuração genérica:
+
+```json
+{ "mcpServers": { "mobbin": { "url": "https://api.mobbin.com/mcp" } } }
+```
+
+Alguns clientes (por exemplo o Cline) também precisam de `"type": "streamableHttp"`. No Claude Code, por exemplo, confira com `/mcp` se as ferramentas do Mobbin aparecem; outras ferramentas têm o seu próprio jeito de listar servidores conectados. Limite: 60 requisições por 60 segundos por usuário (HTTP 429 com `Retry-After`).
+
+## Sem Mobbin Pro? Use o modo manual
+
+O acesso por MCP exige plano pago (Pro, Team ou Enterprise). Sem ele vale o fallback "Without the Mobbin MCP" da skill: navegue no mobbin.com e entregue ao agente links, prints ou a sua coleção exportada. Ele aplica o mesmo método e nunca finge que pesquisou.
 
 ## Configuração
 
@@ -83,6 +120,11 @@ As decisões seguem uma prioridade fixa: sua decisão explícita, seu arquivo de
 
 ```
 mobbin-design-research/
+  adapters/
+    mobbin-design-research.prompt.md      # whole skill in one file, for chat apps
+    cursor/mobbin-design-research.mdc     # Cursor rule
+    AGENTS.snippet.md                     # paste into AGENTS.md / GEMINI.md
+  scripts/build-prompt.sh                 # regenerates the adapters
   README.md
   README.pt-BR.md
   LICENSE
@@ -97,6 +139,10 @@ mobbin-design-research/
       REFERENCES.example.md               # exemplo de references/mobbin/<area>/REFERENCES.md
       PATTERNS.example.md                 # exemplo de PATTERNS.md entre apps
 ```
+
+## Contribuindo
+
+O prompt e a regra do Cursor em `adapters/` são gerados a partir da skill. Depois de editar qualquer coisa em `skills/`, rode `bash scripts/build-prompt.sh` e faça commit do resultado.
 
 ## Créditos
 

@@ -1,9 +1,10 @@
 # mobbin-design-research
 
-Turn Mobbin research into better screens: a Claude Code skill that studies how real apps solve a problem, then rebuilds your design against that evidence.
+Turn Mobbin research into better screens: a skill for any AI agent (Claude Code, Codex, Cursor, Gemini CLI, Copilot, chat apps) that studies how real apps solve a problem, then rebuilds your design against that evidence.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Claude Code skill](https://img.shields.io/badge/Claude%20Code-skill-8A5CF6)
+![Agent Skills](https://img.shields.io/badge/Agent%20Skills-compatible-0A7F5A)
 
 English | [Português (Brasil)](README.pt-BR.md)
 
@@ -19,30 +20,66 @@ Most reference hunting ends as a moodboard nobody uses. This skill makes researc
 
 ## Requirements
 
-- [Claude Code](https://claude.com/claude-code)
-- A Mobbin account and the official Mobbin MCP server, which provides `search_screens`, `search_flows` and `search_sections` (and optionally `list_collections`, `get_collection_contents`, `save_content`).
+- An AI agent that supports [Agent Skills](https://agentskills.io) (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot...) or any chat app (ChatGPT, Gemini, Claude.ai Projects) via the pasteable prompt.
+- Recommended: the official Mobbin MCP server and a paid Mobbin plan (Pro, Team or Enterprise). It is hosted at `https://api.mobbin.com/mcp` and exposes three read-only tools: `search_screens`, `search_flows` and `search_sections`. No Mobbin Pro? See [manual mode](#no-mobbin-pro-use-manual-mode).
 - A design tool the agent can capture screens from. Figma is the default; the loop works with any tool that supports "capture and compare".
 
 ## Install
 
+### a) Quick (any agent)
+
 ```bash
-git clone https://github.com/joaoezau/mobbin-design-research.git
-cd mobbin-design-research
-
-# User-level (all projects)
-mkdir -p ~/.claude/skills
-cp -r skills/mobbin-design-research ~/.claude/skills/
-
-# or project-level (this project only)
-mkdir -p .claude/skills
-cp -r skills/mobbin-design-research .claude/skills/
+npx skills add joaoezau/mobbin-design-research
 ```
 
-Restart Claude Code (or start a new session) so it picks up the skill.
+The [`skills`](https://github.com/vercel-labs/skills) CLI detects the agents you have installed. Target specific ones with `-a`, for example `-a claude-code -a codex -a cursor`.
 
-### Connect the Mobbin MCP
+### b) Manual
 
-Add the Mobbin MCP server to Claude Code following Mobbin's own documentation, then sign in with your Mobbin account. Check with `/mcp` that the Mobbin tools are listed.
+The skill is a folder with `SKILL.md` at its root (`skills/mobbin-design-research/`). Copy it into your agent's skills folder:
+
+| Agent | Project path | User path |
+|---|---|---|
+| Neutral (read by several agents) | `.agents/skills/` | |
+| Claude Code | `.claude/skills/` | `~/.claude/skills/` |
+| Codex | `.agents/skills/` (some versions: `.codex/skills/`) | `~/.codex/skills/` (check your Codex version's docs) |
+| Cursor | `.cursor/skills/` (also reads `.agents/skills/`) | |
+| Gemini CLI | `.gemini/skills/` (also `.agents/skills/`) | `~/.gemini/skills/` |
+| GitHub Copilot | `.github/skills/` | `~/.copilot/skills/` |
+
+```bash
+git clone https://github.com/joaoezau/mobbin-design-research.git
+mkdir -p .claude/skills            # pick the folder from the table
+cp -r mobbin-design-research/skills/mobbin-design-research .claude/skills/
+```
+
+Restart the agent (or open a new session) so it picks up the skill.
+
+### c) Chat apps (ChatGPT, Gemini, Claude.ai Projects)
+
+Paste [`adapters/mobbin-design-research.prompt.md`](adapters/mobbin-design-research.prompt.md) into a Custom GPT or ChatGPT Project's instructions, a Gemini Gem, a Claude Project, or any system prompt. It is the whole skill in one file. Chat apps without MCP use the manual mode below; if your ChatGPT plan supports MCP connectors, you can connect Mobbin there.
+
+### d) Cursor rule (older Cursor versions without skills)
+
+Copy [`adapters/cursor/mobbin-design-research.mdc`](adapters/cursor/mobbin-design-research.mdc) to `.cursor/rules/`. It carries the full skill content.
+
+### e) AGENTS.md snippet
+
+Paste [`adapters/AGENTS.snippet.md`](adapters/AGENTS.snippet.md) into your `AGENTS.md`, `GEMINI.md` or `.github/copilot-instructions.md` so the agent knows when to load the skill and where it lives.
+
+## Connect the Mobbin MCP
+
+Each tool has its own MCP config; follow its docs and Mobbin's ([mobbin.com/mcp](https://mobbin.com/mcp), [mobbin/mobbin-mcp-server](https://github.com/mobbin/mobbin-mcp-server)). The server is hosted (Streamable HTTP) and uses OAuth: a browser sign-in on first use, no API key. A generic config:
+
+```json
+{ "mcpServers": { "mobbin": { "url": "https://api.mobbin.com/mcp" } } }
+```
+
+Some clients (for example Cline) need `"type": "streamableHttp"` too. In Claude Code, for instance, check with `/mcp` that the Mobbin tools are listed; other tools have their own way to list connected servers. Rate limit: 60 requests per 60 seconds per user (HTTP 429 with `Retry-After`).
+
+## No Mobbin Pro? Use manual mode
+
+MCP access needs a paid plan (Pro, Team or Enterprise). Without it, the skill's "Without the Mobbin MCP" fallback applies: browse mobbin.com yourself and give the agent links, screenshots or your exported collection. It runs the same method on those and never pretends to have searched.
 
 ## Configure
 
@@ -83,6 +120,11 @@ Decisions follow a fixed priority: your explicit decision, your rules file, your
 
 ```
 mobbin-design-research/
+  adapters/
+    mobbin-design-research.prompt.md      # whole skill in one file, for chat apps
+    cursor/mobbin-design-research.mdc     # Cursor rule
+    AGENTS.snippet.md                     # paste into AGENTS.md / GEMINI.md
+  scripts/build-prompt.sh                 # regenerates the adapters
   README.md
   README.pt-BR.md
   LICENSE
@@ -97,6 +139,10 @@ mobbin-design-research/
       REFERENCES.example.md               # sample references/mobbin/<area>/REFERENCES.md
       PATTERNS.example.md                 # sample cross-app PATTERNS.md
 ```
+
+## Contributing
+
+The prompt and the Cursor rule in `adapters/` are generated from the skill. After editing anything under `skills/`, run `bash scripts/build-prompt.sh` and commit the result.
 
 ## Credits
 

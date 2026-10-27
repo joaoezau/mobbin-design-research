@@ -1,6 +1,6 @@
 # project-config.md (template)
 
-Copy this file to your project root (or `.claude/project-config.md`) and fill it in. The skill reads it first. Delete lines you don't need; unfilled values fall back to the defaults in SKILL.md.
+Copy this file to your project root (or your agent's config folder, e.g. `.claude/project-config.md`) and fill it in. The skill reads it first. Delete lines you don't need; unfilled values fall back to the defaults in SKILL.md.
 
 ## Rules
 - rules_file: AGENTS.md          # or CLAUDE.md, CONTRIBUTING.md, design-rules.md
@@ -41,6 +41,7 @@ Copy this file to your project root (or `.claude/project-config.md`) and fill it
   - "<app name>: search '<distinctive spelling>' together, because '<plain name>' returns a different app"
 
 ## Tool rate limits
+- mobbin_mcp_requests_per_minute: 60   # 60 per 60 s per user; on 429 wait for Retry-After, then retry
 - design_tool_calls_per_minute: 8
 - on_limit_reached: wait 90 seconds, retry once
 - batching: large scripts; capture at the end of each block
