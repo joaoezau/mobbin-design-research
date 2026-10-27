@@ -12,9 +12,9 @@ Capture the current screen and name its 3 biggest problems precisely ("three lin
 
 ## 2. Reference board
 
-Two searches, looking at every image:
-- `search_screens(mode="standard")` with the NAME of the screen or content ("profile with weekly insights", "notes editor with bullet list").
-- `search_screens(mode="deep")` with what it should LOOK like ("calm light profile with a weekly row and a streak card").
+Free searches first, looking at every image (see "AI credits" in SKILL.md):
+- `search_screens(mode="standard")` with the NAME of the screen or content ("profile with weekly insights", "notes editor with bullet list"); if needed, a second `standard` with another term or a priority app's name.
+- `search_screens(mode="deep")` with what it should LOOK like ("calm light profile with a weekly row and a streak card") ONLY if the standard searches didn't yield 5 good references, and at most once per screen.
 
 Include the user's priority apps. Pick the **5 to 8 best** and say why each earns its place; store them in `references/mobbin/<area>/`.
 

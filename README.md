@@ -77,6 +77,10 @@ Each tool has its own MCP config; follow its docs and Mobbin's ([mobbin.com/mcp]
 
 Some clients (for example Cline) need `"type": "streamableHttp"` too. In Claude Code, for instance, check with `/mcp` that the Mobbin tools are listed; other tools have their own way to list connected servers. Rate limit: 60 requests per 60 seconds per user (HTTP 429 with `Retry-After`).
 
+## Saving Mobbin AI credits
+
+Mobbin charges AI credits only for Deep Search (`search_screens` with `mode="deep"`): 5 per search that returns results; Pro includes 300 a month ([docs](https://docs.mobbin.com/ai-credits)). Standard search, flows, sections and collections are free. The skill starts with free searches, uses Deep Search only when they fall short (default budget: 1 per screen, 3 per task, then it asks you), never repeats a search, and reports how many it used. Set `deep_search_allowed: false` in `project-config.md` to spend zero credits.
+
 ## No Mobbin Pro? Use manual mode
 
 MCP access needs a paid plan (Pro, Team or Enterprise). Without it, the skill's "Without the Mobbin MCP" fallback applies: browse mobbin.com yourself and give the agent links, screenshots or your exported collection. It runs the same method on those and never pretends to have searched.

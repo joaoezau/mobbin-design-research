@@ -40,6 +40,11 @@ Copy this file to your project root (or your agent's config folder, e.g. `.claud
 - naming_quirks:
   - "<app name>: search '<distinctive spelling>' together, because '<plain name>' returns a different app"
 
+## Mobbin AI credits (deep search only: 5 credits per successful search)
+- deep_searches_per_screen: 1
+- deep_searches_per_task: 3      # above this, ask the user first
+- deep_search_allowed: true      # false = never use mode "deep" (zero credits)
+
 ## Tool rate limits
 - mobbin_mcp_requests_per_minute: 60   # 60 per 60 s per user; on 429 wait for Retry-After, then retry
 - design_tool_calls_per_minute: 8

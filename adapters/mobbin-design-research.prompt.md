@@ -20,13 +20,13 @@ Requires the official Mobbin MCP server (hosted at `https://api.mobbin.com/mcp`,
 
 ### Step 0: load the project config
 
-Read `project-config.md` at the project root or in your agent's config folder (e.g. `.claude/`, `.cursor/`, `.gemini/`) (template: [references/project-config.template.md](#part-project-config-template)). It names the rules file, platform, design tool, design-system locations, curated reference folders, priority apps, naming quirks and rate limits. If it is missing, offer to create it from the template; otherwise use these defaults: rules file `AGENTS.md` (or your agent's equivalent, e.g. `CLAUDE.md`, `GEMINI.md`), platform `ios`, design tool Figma, no curated folders.
+Read `project-config.md` at the project root or in your agent's config folder (e.g. `.claude/`, `.cursor/`, `.gemini/`) (template: [references/project-config.template.md](#part-project-config-template)). It names the rules file, platform, design tool, design-system locations, curated reference folders, priority apps, naming quirks and rate limits. Tell the user in your first reply whether you found it. If it is missing, offer to create it from the template; meanwhile use these defaults: rules file `AGENTS.md` (or your agent's equivalent, e.g. `CLAUDE.md`, `GEMINI.md`), platform `ios`, design tool Figma, no curated folders.
 
 Read the project rules file before designing. Research never authorizes breaking those rules: copy **patterns, not pixels**, colors or fonts from other apps.
 
 ### Without the Mobbin MCP
 
-If the Mobbin tools are not available in this tool or chat, say so at the start. Ask the user for Mobbin links, screenshots or their exported collection, and run the same method on those (questions, numbers, patterns, compare loop). Never pretend to have searched Mobbin, and never invent `mobbin_url`s or screens you have not seen.
+If the Mobbin tools are not available in this tool or chat, say so at the start. In that first reply, ask the user for (1) the current screen or flow (screenshot or design-tool link) and (2) Mobbin links, screenshots or their exported collection, and say whether `project-config.md` was found. Then run the same method on those (questions, numbers, patterns, compare loop). Never pretend to have searched Mobbin, and never invent `mobbin_url`s or screens you have not seen.
 
 ### Who decides (priority order)
 
@@ -49,11 +49,20 @@ One "After" version per screen: no B/C options. Would-be options go in the note,
 7. **Reuse existing components.** Never hand-draw what the design system already has.
 8. **Extract numbers, not vibes.** Sizes, positions, item counts, labels, active states.
 
+### AI credits: spend them on purpose
+
+Only `search_screens` with `mode="deep"` costs Mobbin AI credits: 5 per search that returns results, and a repeated search is charged again ([docs.mobbin.com/ai-credits](https://docs.mobbin.com/ai-credits); Pro includes 300 a month, about 60 deep searches). `standard`, `search_flows`, `search_sections` and collections are free.
+
+- Start with `standard` (name the screen or app) and `search_flows`. Use `deep` only when the free searches don't answer the question.
+- Stay within the config budget (defaults: 1 deep per screen, 3 per task); above it, ask the user. If `deep_search_allowed: false`, never use it.
+- Never repeat a search or ask `deep` for "more results": log every search (query, mode, date) in `REFERENCES.md` and reread it first.
+- On delivery, say how many deep searches you used.
+
 ### Tool map (Mobbin MCP)
 
 | Tool | Returns | Use when |
 |---|---|---|
-| `search_screens` | Up to 30 screens with image, app and `mobbin_url`. `mode="deep"` interprets intent and filters relevance; `mode="standard"` is fast. Name the app to filter ("<app> profile screen") | References for one screen or component |
+| `search_screens` | Up to 30 screens with image, app and `mobbin_url`. `mode="standard"` is fast and free (the default); `mode="deep"` interprets intent and filters relevance but costs 5 AI credits. Name the app to filter ("<app> profile screen") | References for one screen or component |
 | `search_flows` | Up to 10 flows per page, screens in order; paginate with `page` | How apps chain a journey (onboarding, paywall, add a friend) |
 | `search_sections` | Website sections | Web or landing pages only |
 | Collection tools (only if your client exposes them) | The user's saved collections | Reading curation |
@@ -146,9 +155,9 @@ Capture the current screen and name its 3 biggest problems precisely ("three lin
 
 ### 2. Reference board
 
-Two searches, looking at every image:
-- `search_screens(mode="standard")` with the NAME of the screen or content ("profile with weekly insights", "notes editor with bullet list").
-- `search_screens(mode="deep")` with what it should LOOK like ("calm light profile with a weekly row and a streak card").
+Free searches first, looking at every image (see "AI credits" in SKILL.md):
+- `search_screens(mode="standard")` with the NAME of the screen or content ("profile with weekly insights", "notes editor with bullet list"); if needed, a second `standard` with another term or a priority app's name.
+- `search_screens(mode="deep")` with what it should LOOK like ("calm light profile with a weekly row and a streak card") ONLY if the standard searches didn't yield 5 good references, and at most once per screen.
 
 Include the user's priority apps. Pick the **5 to 8 best** and say why each earns its place; store them in `references/mobbin/<area>/`.
 
@@ -244,6 +253,11 @@ Copy this file to your project root (or your agent's config folder, e.g. `.claud
 ### Naming quirks
 - naming_quirks:
   - "<app name>: search '<distinctive spelling>' together, because '<plain name>' returns a different app"
+
+### Mobbin AI credits (deep search only: 5 credits per successful search)
+- deep_searches_per_screen: 1
+- deep_searches_per_task: 3      # above this, ask the user first
+- deep_search_allowed: true      # false = never use mode "deep" (zero credits)
 
 ### Tool rate limits
 - mobbin_mcp_requests_per_minute: 60   # 60 per 60 s per user; on 429 wait for Retry-After, then retry

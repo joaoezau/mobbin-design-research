@@ -12,13 +12,13 @@ Requires the official Mobbin MCP server (hosted at `https://api.mobbin.com/mcp`,
 
 ## Step 0: load the project config
 
-Read `project-config.md` at the project root or in your agent's config folder (e.g. `.claude/`, `.cursor/`, `.gemini/`) (template: [references/project-config.template.md](references/project-config.template.md)). It names the rules file, platform, design tool, design-system locations, curated reference folders, priority apps, naming quirks and rate limits. If it is missing, offer to create it from the template; otherwise use these defaults: rules file `AGENTS.md` (or your agent's equivalent, e.g. `CLAUDE.md`, `GEMINI.md`), platform `ios`, design tool Figma, no curated folders.
+Read `project-config.md` at the project root or in your agent's config folder (e.g. `.claude/`, `.cursor/`, `.gemini/`) (template: [references/project-config.template.md](references/project-config.template.md)). It names the rules file, platform, design tool, design-system locations, curated reference folders, priority apps, naming quirks and rate limits. Tell the user in your first reply whether you found it. If it is missing, offer to create it from the template; meanwhile use these defaults: rules file `AGENTS.md` (or your agent's equivalent, e.g. `CLAUDE.md`, `GEMINI.md`), platform `ios`, design tool Figma, no curated folders.
 
 Read the project rules file before designing. Research never authorizes breaking those rules: copy **patterns, not pixels**, colors or fonts from other apps.
 
 ## Without the Mobbin MCP
 
-If the Mobbin tools are not available in this tool or chat, say so at the start. Ask the user for Mobbin links, screenshots or their exported collection, and run the same method on those (questions, numbers, patterns, compare loop). Never pretend to have searched Mobbin, and never invent `mobbin_url`s or screens you have not seen.
+If the Mobbin tools are not available in this tool or chat, say so at the start. In that first reply, ask the user for (1) the current screen or flow (screenshot or design-tool link) and (2) Mobbin links, screenshots or their exported collection, and say whether `project-config.md` was found. Then run the same method on those (questions, numbers, patterns, compare loop). Never pretend to have searched Mobbin, and never invent `mobbin_url`s or screens you have not seen.
 
 ## Who decides (priority order)
 
@@ -41,11 +41,20 @@ One "After" version per screen: no B/C options. Would-be options go in the note,
 7. **Reuse existing components.** Never hand-draw what the design system already has.
 8. **Extract numbers, not vibes.** Sizes, positions, item counts, labels, active states.
 
+## AI credits: spend them on purpose
+
+Only `search_screens` with `mode="deep"` costs Mobbin AI credits: 5 per search that returns results, and a repeated search is charged again ([docs.mobbin.com/ai-credits](https://docs.mobbin.com/ai-credits); Pro includes 300 a month, about 60 deep searches). `standard`, `search_flows`, `search_sections` and collections are free.
+
+- Start with `standard` (name the screen or app) and `search_flows`. Use `deep` only when the free searches don't answer the question.
+- Stay within the config budget (defaults: 1 deep per screen, 3 per task); above it, ask the user. If `deep_search_allowed: false`, never use it.
+- Never repeat a search or ask `deep` for "more results": log every search (query, mode, date) in `REFERENCES.md` and reread it first.
+- On delivery, say how many deep searches you used.
+
 ## Tool map (Mobbin MCP)
 
 | Tool | Returns | Use when |
 |---|---|---|
-| `search_screens` | Up to 30 screens with image, app and `mobbin_url`. `mode="deep"` interprets intent and filters relevance; `mode="standard"` is fast. Name the app to filter ("<app> profile screen") | References for one screen or component |
+| `search_screens` | Up to 30 screens with image, app and `mobbin_url`. `mode="standard"` is fast and free (the default); `mode="deep"` interprets intent and filters relevance but costs 5 AI credits. Name the app to filter ("<app> profile screen") | References for one screen or component |
 | `search_flows` | Up to 10 flows per page, screens in order; paginate with `page` | How apps chain a journey (onboarding, paywall, add a friend) |
 | `search_sections` | Website sections | Web or landing pages only |
 | Collection tools (only if your client exposes them) | The user's saved collections | Reading curation |
